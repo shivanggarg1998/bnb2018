@@ -18,35 +18,33 @@ require('../js/script.js');
    styleUrls: ["../css/bootstrap.min.css",
               "../css/font-awesome.min.css",
               "../css/style.css",
-              './profile.component.css']
+              'profile.component.css']
 })
 export class ProfileComponent implements OnInit {
   player : any;
   customer : any;
   company: any;
   private subscription: Subscription;
-
-
+  isDataAvailable:boolean = false;
   constructor(private profileService : ProfileService,
               private router : Router,
               private http : Http ) { }
 
   ngOnInit() {
-    this.subscription = Observable.timer(0, 10000)
+    this.subscription = Observable.timer(0, 60000)
       .subscribe(() => {
-        this.profileService.fetchCustomer().subscribe(Player => {
-          this.player = Player
-          this.refreshPage()
+        this.profileService.fetchCustomer().subscribe((Player) => {
+          this.player = Player;
+          this.isDataAvailable = true;
+          console.log('Customer fetched');
+          //console.log(this.player)
+          // this.refreshPage();
         },
         err => {
           console.log(err)
           return false
         })
       })
-  }
-
-  ngOnDestroy() {
-    this.subscription.unsubscribe()
   }
 
   loanMoney(){
@@ -62,7 +60,7 @@ export class ProfileComponent implements OnInit {
   }
 
   checkLoan(){
-    if(this.player.Customer.loan.amount == 0){
+    if(!this.player.loan){
       return true
     }
     else{
@@ -86,11 +84,16 @@ export class ProfileComponent implements OnInit {
     console.log("Inside refreshPage()")
     this.profileService.fetchCustomer().subscribe(Player => {
       this.player = Player
+      //console.log(this.player)
     },
     err => {
       console.log(err)
       return false
     })
+  }
+
+    ngOnDestroy() {
+    this.subscription.unsubscribe()
   }
 
 }
